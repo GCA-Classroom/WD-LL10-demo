@@ -1,155 +1,106 @@
-// ====== GLOBAL STATE ======
-let comments = []; // Stores all added comments
-
-
-// ====== DOM ELEMENT REFERENCES ======
-const addButton = document.querySelector('#addButton');
-const usernameInput = document.querySelector('#usernameInput');
-const commentInput = document.querySelector('#commentInput');
-const addToStartCheckbox = document.querySelector('#addToStart');
-
-const pickWinnerBtn = document.querySelector('#pick-winner-btn');
-const emojiFilterButton = document.querySelector('#emojiFilterButton');
-const reverseButton = document.querySelector('#reverseButton');
-
-
-// ====== EVENT LISTENERS ======
-
-// Add Comment button
-addButton.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  const comment = commentInput.value.trim();
-  const addToStart = addToStartCheckbox.checked;
-
-  if (username && comment) {
-    addComment(username, comment, addToStart);
-    usernameInput.value = '';
-    commentInput.value = '';
-  }
+// ===== 1) PARSE rawComments INTO an array of {username, comment} =====
+let comments = rawComments.map((entry) => {
+  const [username, comment] = entry.split(":");
+  return {
+    username: username.trim(),
+    comment: comment.trim(),
+  };
 });
 
-// Pick Winner button
-pickWinnerBtn.addEventListener('click', pickWinner);
+// ===== 2) GRAB DOM NODES =====
+const addButton = document.querySelector("#addButton");
+const usernameInput = document.querySelector("#usernameInput");
+const commentInput = document.querySelector("#commentInput");
+const addToStartCheckbox = document.querySelector("#addToStart");
+const pickWinnerBtn = document.querySelector("#pick-winner-btn");
+const emojiFilterButton = document.querySelector("#emojiFilterButton");
+const reverseButton = document.querySelector("#reverseButton");
+const listGroup = document.querySelector(".list-group");
+const winnerBox = document.querySelector("#winnerBox");
 
-// Toggle Emoji Filter button
-let emojiFilterActive = false;
-emojiFilterButton.addEventListener('click', () => {
-  emojiFilterActive = !emojiFilterActive;
-  emojiFilterButton.textContent = emojiFilterActive ? 'Show All' : 'Hide Emoji-Only';
+// Bootstrap’s Toast API
+const toastEl = document.getElementById("winnerToast");
+const toastMsg = document.getElementById("winnerToastMsg");
+const winnerToast = new bootstrap.Toast(toastEl, { delay: 3000 }); // auto‐dismiss after 3s
 
-  if (emojiFilterActive) {
-    filterEmojiComments();
-  } else {
-    renderComments();
-  }
+// ===== 3) WIRE UP EVENT LISTENERS =====
+addButton.addEventListener("click", () => {
+  const user = usernameInput.value.trim();
+  const text = commentInput.value.trim();
+  const atStart = addToStartCheckbox.checked;
+  if (!user || !text) return;
+
+  addComment(user, text, atStart);
+  usernameInput.value = "";
+  commentInput.value = "";
 });
 
-// Reverse List button
-reverseButton.addEventListener('click', reverseOrder);
+pickWinnerBtn.addEventListener("click", pickWinner);
 
-
-// ====== CORE FUNCTIONS ======
-
-/**
- * Adds a comment to the list
- * @param {string} username - Username (with or without @)
- * @param {string} comment - The comment text
- * @param {boolean} addToStart - Whether to add to start or end
- */
-function addComment(username, comment, addToStart) {
-  const formattedUsername = username.startsWith('@') ? username : '@' + username;
-  const newComment = { username: formattedUsername, comment };
-
-  if (addToStart) {
-    comments.unshift(newComment);
-  } else {
-    comments.push(newComment);
-  }
-
+reverseButton.addEventListener("click", () => {
+  comments.reverse();
   renderComments();
-}
+});
 
-/**
- * Randomly picks a comment and displays the winner
- */
-function pickWinner() {
-  if (comments.length === 0) return;
+let emojiFilterActive = false;
+emojiFilterButton.addEventListener("click", () => {
+  emojiFilterActive = !emojiFilterActive;
+  emojiFilterButton.textContent = emojiFilterActive
+    ? "Show All"
+    : "Hide Emoji-Only";
+  emojiFilterActive ? filterEmojiComments() : renderComments();
+});
 
-  const randomIndex = Math.floor(Math.random() * comments.length);
-  const winner = comments[randomIndex];
-  const message = `🎉 Winner: ${winner.username}: ${winner.comment}`;
-  
-  showWinnerMessage(message);
-}
+// ===== 4) CORE FUNCTIONS =====
 
-/**
- * Displays a winner message in the UI
- * @param {string} message - Formatted message to show
- */
-function showWinnerMessage(message) {
-  const winnerBox = document.querySelector('#winnerBox');
-  if (winnerBox) {
-    winnerBox.textContent = message;
-    winnerBox.style.display = 'block';
-  }
-}
+function renderComments(list = comments) {
+  listGroup.innerHTML = "";
+  list.forEach((c, i) => {
+    const item = document.createElement("div");
+    item.className =
+      "list-group-item d-flex justify-content-between align-items-center";
 
-/**
- * Renders all comments (or filtered subset)
- * @param {Array} commentList - List of comments to display
- */
-function renderComments(commentList = comments) {
-  const listGroup = document.querySelector('.list-group');
-  listGroup.innerHTML = ''; // Clear existing items
+    const span = document.createElement("span");
+    span.innerHTML = `<strong>${c.username}</strong> ${c.comment}`;
+    item.appendChild(span);
 
-  commentList.forEach((c, index) => {
-    const listItem = document.createElement('div');
-    listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-    const content = document.createElement('span');
-    content.innerHTML = `<strong>${c.username}</strong> ${c.comment}`;
-    listItem.appendChild(content);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '❌';
-    removeBtn.className = 'btn btn-sm btn-outline-danger';
-    removeBtn.onclick = () => {
-      comments.splice(index, 1);
+    const btn = document.createElement("button");
+    btn.textContent = "❌";
+    btn.className = "btn btn-sm btn-outline-danger";
+    btn.onclick = () => {
+      comments.splice(i, 1);
       renderComments();
     };
-    listItem.appendChild(removeBtn);
+    item.appendChild(btn);
 
-    listGroup.appendChild(listItem);
+    listGroup.appendChild(item);
   });
 }
 
-/**
- * Reverses the current order of comments
- */
-function reverseOrder() {
-  comments.reverse();
+function addComment(user, text, atStart) {
+  const name = user.startsWith("@") ? user : "@" + user;
+  const obj = { username: name, comment: text };
+  atStart ? comments.unshift(obj) : comments.push(obj);
   renderComments();
 }
 
-/**
- * Filters out comments that only contain emojis
- */
+function pickWinner() {
+  if (!comments.length) return;
+  const { username, comment } =
+    comments[Math.floor(Math.random() * comments.length)];
+  showWinnerMessage(`🎉 Winner: ${username}: ${comment}`);
+}
+
+function showWinnerMessage(message) {
+  toastMsg.textContent = message;  // put the text in the toast
+  winnerToast.show();              // show it
+}
+
+
 function filterEmojiComments() {
-  const filtered = comments.filter(c => /\w/.test(c.comment)); // At least one alphanumeric
+  const filtered = comments.filter((c) => /\w/.test(c.comment));
   renderComments(filtered);
 }
 
-/**
- * (Optional) Removes a comment by index - not used directly, but could be reused
- */
-function removeComment(index) {
-  comments.splice(index, 1);
-  renderComments();
-}
-
-/**
- * (Optional) Filter list by search input (user/comment) — implement if needed
- */
-function filterList(searchTerm, searchUsers) {
-  // Not implemented — add if you want live search!
-}
+// ===== 5) INITIAL RENDER =====
+renderComments();

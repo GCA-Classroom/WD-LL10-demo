@@ -205,12 +205,29 @@
       <p class="mb-0">&copy; 2024 Shufflix. All rights reserved.</p>
     </footer>
 
+
+        <!-- winner-toast -->
+        <div id="winnerToast" 
+            class="toast align-items-center text-bg-primary border-0 position-fixed top-50 start-50 translate-middle" 
+            role="alert" 
+            aria-live="assertive" 
+            aria-atomic="true">
+          <div class="d-flex">
+            <div id="winnerToastMsg" class="toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+
+
     <!-- JavaScript Files -->
     <script src="data.js"></script>
     <script src="https://itchonib.github.io/ll-10-provided/provided.js"></script>
-    <script src="script.js"></script>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS-->
+    <script src="script.js"></script>
+
+
+
   </body>
 </html>
