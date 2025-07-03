@@ -95,6 +95,8 @@
                   Get immediate results with just one click. No waiting or
                   complicated setup required.
                 </p>
+                <div id="winnerBox" style="display:none; font-size:1.5rem; color:blue;"></div>
+
               </div>
             </div>
           </div>
@@ -121,50 +123,43 @@
 
         <div class="mt-4 mb-4">
           <div class="card p-3">
-            <div class="row g-3">
-              <div class="col-6">
-                <input
-                  type="text"
-                  id="new-username"
-                  class="form-control"
-                  placeholder="Enter username..."
-                />
-              </div>
-              <div class="col-6">
-                <input
-                  type="text"
-                  id="new-comment"
-                  class="form-control"
-                  placeholder="Enter comment..."
-                />
-              </div>
-              <div class="col-12">
-                <div class="d-flex gap-2 align-items-center">
-                  <div class="form-check">
-                    <input
-                      type="checkbox"
-                      id="add-to-start"
-                      class="form-check-input"
-                    />
-                    <label class="form-check-label" for="add-to-start"
-                      >Add to start</label
-                    >
-                  </div>
-                  <button id="submit-comment" class="btn btn-primary">
-                    Add
-                  </button>
-                </div>
-              </div>
+             <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="addToStart" />
+                        <label class="form-check-label" for="addToStart">Add to start</label>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <input
+                        type="text"
+                        id="usernameInput"
+                        class="form-control"
+                        placeholder="Enter username..."
+                      />
+                    </div>
+                    <div class="col">
+                      <input
+                        type="text"
+                        id="commentInput"
+                        class="form-control"
+                        placeholder="Enter comment..."
+                      />
+                    </div>
+                    <div class="col-auto">
+                      <button id="addButton" class="btn btn-primary">Add</button>
+                    </div>
+                  </div>         
             </div>
           </div>
         </div>
         <div id="comments-list" class="mt-4">
           <div class="d-flex flex-column mb-3 gap-2">
             <h3>All Comments</h3>
-            <button id="reverse-list" class="btn btn-outline-primary">
+            <button id="reverseButton" class="btn btn-outline-primary">
               Reverse List
             </button>
-            <button id="filter-emoji" class="btn btn-outline-primary">
+            <button id="emojiFilterButton" class="btn btn-outline-primary">
               Hide Emoji-Only
             </button>
             <div class="d-flex gap-2">
